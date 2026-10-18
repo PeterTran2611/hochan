@@ -172,6 +172,9 @@
     font-family: var(--hanzi); font-size: 28px; line-height: 1.15; text-align: center; }
   .word .py { color: var(--accent); font-weight: 700; }
   .word .mn { color: var(--muted); font-size: 14px; }
+  /* Ghi chú cạnh nghĩa: nhãn nhỏ, nằm trong dòng chữ, tự xuống dòng khi dài */
+  .mn-note { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 8px; background: var(--yellow-soft); color: var(--yellow-ink);
+    font-size: .8em; font-weight: 600; line-height: 1.5; vertical-align: middle; overflow-wrap: anywhere; max-width: 100%; }
   .word .tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
   .empty { text-align: center; color: var(--muted); padding: 32px 16px; }
   .btn-icon { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--accent);
@@ -470,7 +473,7 @@
 </div>
 
 <script>
-window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","builtAt":"2026-10-18T16:11:01.757Z"};
+window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"optionalColumns":{"note":"Ghi chú"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","builtAt":"2026-10-18T16:28:48.486Z"};
 // Parser CSV dùng chung cho trình duyệt (nhúng khi build) và script Node.
 // Giữ NGUYÊN VĂN nội dung từng ô: không cắt khoảng trắng, không đổi hoa/thường.
 function parseCSV(text) {
@@ -500,7 +503,8 @@ function parseCSV(text) {
 
 // Đổi bảng CSV thành danh sách từ. Chỉ ĐỌC giá trị, không sửa.
 // Trả về { words, missing } — missing là các cột bắt buộc không tìm thấy.
-function rowsToWords(rows, columns, source) {
+// optional: cột không bắt buộc (vd. { note: "Ghi chú" }); thiếu thì để trống, có thì tách khỏi extra
+function rowsToWords(rows, columns, source, optional = {}) {
   const header = rows[0] || [];
   const find = name => header.findIndex(h => String(h).trim() === String(name).trim());  // chỉ so sánh
   const idx = {};
@@ -510,7 +514,9 @@ function rowsToWords(rows, columns, source) {
     if (idx[k] < 0) missing.push(name);
   }
   if (missing.length) return { words: [], missing };
-  const main = new Set(Object.values(idx));
+  const opt = {};
+  for (const [k, name] of Object.entries(optional)) opt[k] = find(name);
+  const main = new Set([...Object.values(idx), ...Object.values(opt).filter(i => i >= 0)]);
   const words = [];
   for (let r = 1; r < rows.length; r++) {
     const row = rows[r];
@@ -520,7 +526,7 @@ function rowsToWords(rows, columns, source) {
     header.forEach((h, i) => { if (!main.has(i) && cell(i) !== "") extra[h] = cell(i); });
     words.push({
       hz: cell(idx.hanzi), py: cell(idx.pinyin), mn: cell(idx.meaning),
-      hsk: cell(idx.hsk), lesson: cell(idx.lesson), extra, source
+      hsk: cell(idx.hsk), lesson: cell(idx.lesson), note: opt.note >= 0 ? cell(opt.note) : "", extra, source
     });
   }
   return { words, missing };
@@ -678,16 +684,24 @@ function fillSelects(hskId, lessonId) {
   sl.value = state.lesson;
 }
 
+// Nghĩa kèm ghi chú: nếu file có cột "Ghi chú" và ô có nội dung thì hiện nhãn nhỏ ngay sau nghĩa (nguyên văn)
+function setMeaning(node, w) {
+  node.replaceChildren(document.createTextNode(w.mn));
+  if (key(w.note) !== "") node.append(el("span", "mn-note", w.note));
+  return node;
+}
+const meaningEl = (cls, w) => setMeaning(el("div", cls), w);
+
 // ===== Từ vựng =====
 function renderWords() {
   fillSelects("sel-hsk", "sel-lesson");
   const q = $("search").value.trim().toLowerCase(), box = $("word-list"); box.replaceChildren();
-  const list = filtered().filter(w => !q || (w.hz + w.py + w.mn).toLowerCase().includes(q));
+  const list = filtered().filter(w => !q || (w.hz + w.py + w.mn + (w.note || "")).toLowerCase().includes(q));
   $("result-count").textContent = list.length + " từ · " + filterText();
   if (!list.length) box.append(el("div", "empty", "Không có từ nào phù hợp."));
   list.forEach(w => {
     const row = el("div", "word");
-    const mid = el("div"); mid.append(el("div", "py", w.py), el("div", "mn", w.mn));
+    const mid = el("div"); mid.append(el("div", "py", w.py), meaningEl("mn", w));
     const tags = el("div", "tags"); tags.append(el("span", "tag", hskLabel(w.hsk)), el("span", "tag gray", lessonLabel(w.lesson)));
     mid.append(tags);
     const sp = el("button", "btn-icon"); sp.append(icon("speak")); sp.setAttribute("aria-label", "Phát âm");
@@ -774,15 +788,40 @@ function strokesInto(box, hz) {
   }
 }
 
+// ===== Phát âm =====
+// Đọc chậm (0,75) và chọn giọng tiếng Trung phổ thông rõ nhất có trên máy:
+// giọng AI "Natural/Online" của Edge-Windows > giọng chất lượng cao iPhone/Mac > Google > giọng zh-CN khác. Tránh giọng Quảng Đông.
+const SPEECH_RATE = 0.75;
+let zhVoice = null;
+function voiceScore(v) {
+  const lang = (v.lang || "").replace("_", "-").toLowerCase(), name = v.name || "";
+  if (!/^(zh|cmn)/.test(lang)) return -1;
+  let s = /zh-cn|cmn|hans/.test(lang) ? 50 : /hk|yue/.test(lang) ? -40 : 10;
+  if (/natural|neural|online/i.test(name)) s += 30;
+  if (/premium|enhanced|增强|高品质/i.test(name)) s += 25;
+  if (/google/i.test(name)) s += 20;
+  if (/xiaoxiao|xiaoyi|yunxi|tingting|晓晓|晓伊|云希|婷婷|lili/i.test(name)) s += 10;
+  if (/^zh-cn-./.test(lang)) s -= 30;  // giọng phương ngữ (zh-CN-liaoning, zh-CN-shaanxi…) xếp sau giọng chuẩn
+  return s;
+}
+function pickVoice() {
+  if (!("speechSynthesis" in window)) return;
+  zhVoice = speechSynthesis.getVoices().filter(v => voiceScore(v) >= 0).sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null;
+}
+if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }  // danh sách giọng có thể tải muộn
+
 function speak(text) {
   if (!("speechSynthesis" in window)) return;
-  const u = new SpeechSynthesisUtterance(text); u.lang = "zh-CN";
+  if (!zhVoice) pickVoice();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "zh-CN"; u.rate = SPEECH_RATE; u.pitch = 1;
+  if (zhVoice) { u.voice = zhVoice; u.lang = zhVoice.lang; }
   speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
 
 function openDetail(w) {
   $("d-tags").replaceChildren(el("span", "tag", hskLabel(w.hsk)), el("span", "tag gray", lessonLabel(w.lesson)));
-  $("d-hz").textContent = w.hz; $("d-py").textContent = w.py; $("d-mn").textContent = w.mn;
+  $("d-hz").textContent = w.hz; $("d-py").textContent = w.py; setMeaning($("d-mn"), w);
   fitHz($("d-hz"), w.hz, 76, 560, 72);
   $("d-speak").onclick = () => speak(w.hz);
   strokesInto($("d-strokes"), w.hz);
@@ -803,7 +842,7 @@ function renderFlash() {
   if (!fcDeck.length) { $("fc-hz").textContent = "—"; $("fc-py").textContent = ""; $("fc-mn").textContent = ""; $("fc-strokes").replaceChildren(); $("fc-count").textContent = "0 / 0"; return; }
   fcIndex = Math.min(fcIndex, fcDeck.length - 1);
   const w = fcDeck[fcIndex];
-  $("fc-hz").textContent = w.hz; $("fc-py").textContent = w.py; $("fc-mn").textContent = w.mn;
+  $("fc-hz").textContent = w.hz; $("fc-py").textContent = w.py; setMeaning($("fc-mn"), w);
   fitHz($("fc-hz"), w.hz, 116, 472, 96);
   strokesInto($("fc-strokes"), w.hz);
   $("fc-count").textContent = (fcIndex + 1) + " / " + fcDeck.length;
@@ -884,7 +923,7 @@ function renderQuiz() {
       el("div", "q-label", Math.round(quiz.right * 100 / quiz.size) + "% câu đúng"));
     if (quiz.wrong.length) {
       const wl = el("div", "wrong-list"); wl.append(el("div", "section-title", "Từ cần ôn lại"));
-      quiz.wrong.forEach(w => { const d = el("div"); d.append(el("span", "hz", w.hz), w.py + " — " + w.mn); wl.append(d); });
+      quiz.wrong.forEach(w => { const d = el("div"); d.append(el("span", "hz", w.hz), w.py + " — " + w.mn); if (key(w.note) !== "") d.append(el("span", "mn-note", w.note)); wl.append(d); });
       r.append(wl);
     }
     msgs.append(bubble("bot", r));
@@ -902,7 +941,7 @@ function renderQuiz() {
   }
 
   const w = quiz.cur, m2h = quiz.type === "m2h";
-  const prompt = el("div", "q-prompt" + (m2h ? "" : " hz"), m2h ? w.mn : w.hz);
+  const prompt = m2h ? meaningEl("q-prompt", w) : el("div", "q-prompt hz", w.hz);
   if (!m2h) fitHz(prompt, w.hz, 64, 700, 150);
   msgs.append(bubble("bot", el("div", "q-label", m2h ? "Viết chữ Hán có nghĩa:" : "Chữ Hán này nghĩa là gì?"), prompt));
   if (quiz.hint) { const h = el("div", null, "💡 Gợi ý pinyin: "); h.append(el("b", null, w.py)); msgs.append(bubble("bot", h)); }
@@ -934,7 +973,7 @@ function renderQuiz() {
   msgs.append(bubble("me", quiz.yours ? el("div", m2h ? "hz-ans" : null, quiz.yours) : el("div", null, "Không biết, cho mình xem đáp án")));
   const verdict = el("div", "verdict " + (quiz.result ? "ok" : "bad"), quiz.result ? "✓ Chính xác!" : "✗ Chưa đúng, đáp án là:");
   const ans = el("div", "answer");
-  ans.append(el("div", "a-hz", w.hz), el("div", "a-py", w.py), el("div", null, w.mn));
+  ans.append(el("div", "a-hz", w.hz), el("div", "a-py", w.py), meaningEl("", w));
   const fb = [verdict, ans];
   if (m2h) { const s = el("div", "strokes"); strokesInto(s, w.hz); fb.push(s); }
   msgs.append(bubble("bot", ...fb));
@@ -1031,7 +1070,7 @@ function loadGviz(f) {
 
 async function fetchFile(f) {
   const { rows, nonText } = gvizToRows(await loadGviz(f));
-  const { words, missing } = rowsToWords(rows, CFG.columns, f.name);
+  const { words, missing } = rowsToWords(rows, CFG.columns, f.name, CFG.optionalColumns);
   if (missing.length) throw new Error(`File "${f.name}" thiếu cột: ${missing.join(", ")}. Kiểm tra dòng tiêu đề ở sheet đầu tiên.`);
   if (nonText.length) warnings.push(`⚠ File "${f.name}": cột ${nonText.join(", ")} chưa định dạng Văn bản, Google có thể bỏ trống ô có kiểu khác. Hãy định dạng các cột này là Văn bản.`);
   return words;
