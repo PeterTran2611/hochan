@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff6a1a">
+<title>Học Từ Tiếng Trung</title>
+<style>
+  :root {
+    --bg: #faf6f0; --surface: #ffffff; --surface-2: #fffaf3; --text: #17130f; --muted: #6f685f; --line: #efe6da;
+    --accent: #ff6a1a; --accent-2: #ff8f45; --accent-ink: #e2560a; --accent-soft: #fff0e4;
+    --yellow: #ffc53d; --yellow-ink: #b97f00; --yellow-soft: #fff5d8;
+    --ok: #1e8a4f; --ok-bg: #e6f6ec; --bad: #d93a26; --bad-bg: #fdeae6;
+    --shadow: 0 1px 2px rgba(70,45,20,.04), 0 8px 24px rgba(70,45,20,.07);
+    --shadow-lg: 0 24px 60px rgba(70,45,20,.13);
+    --glow: 0 10px 24px rgba(255,106,26,.30);
+    --hanzi: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15110d; --surface: #1f1914; --surface-2: #261f19; --text: #f6efe7; --muted: #a99f94; --line: #362d25;
+      --accent: #ff7a2e; --accent-2: #ff9a55; --accent-ink: #ff9a5c; --accent-soft: #3a2416;
+      --yellow: #ffcf5c; --yellow-ink: #ffd36e; --yellow-soft: #352b16;
+      --ok: #6fd39a; --ok-bg: #16301f; --bad: #ff8a7a; --bad-bg: #3d1c17;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3);
+      --shadow-lg: 0 24px 60px rgba(0,0,0,.45);
+      --glow: 0 10px 24px rgba(255,122,46,.25);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; }
+  /* Dữ liệu dài luôn xuống dòng, không cắt, không tràn ngang */
+  .word, .bubble, .sheet, .face, .lesson-btn, .extra, .wrong-list, .kv, .card, .result-count, .hero-note, .topbar .sub { overflow-wrap: anywhere; }
+  .ico svg { width: 22px; height: 22px; display: block; }
+  .muted { color: var(--muted); }
+
+  .banner { background: var(--yellow-soft); color: var(--yellow-ink); text-align: center; font-size: 12px; font-weight: 600; padding: 6px 16px; }
+
+  /* ===== Khung trang ===== */
+  .app { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 100vh; }
+  .sidebar, .side-panel { display: none; }
+  main { width: 100%; max-width: 860px; margin: 0 auto; padding: 16px 16px calc(96px + env(safe-area-inset-bottom)); }
+
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+  .logo b { color: var(--accent); }
+  .logo-mark { width: 38px; height: 38px; border-radius: 12px 12px 12px 4px; display: grid; place-items: center; flex: none;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; font-family: var(--hanzi); font-size: 20px; font-weight: 500; box-shadow: var(--glow); }
+
+  .topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: calc(10px + env(safe-area-inset-top)) 16px 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .topbar .sub { font-size: 12px; color: var(--muted); text-align: right; }
+
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; background: var(--surface);
+    border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -6px 24px rgba(70,45,20,.06); }
+  .tabbar .nav-item { flex: 1; min-height: 62px; border: 0; background: none; color: var(--muted); font-size: 11.5px; font-weight: 600;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+  .tabbar .nav-item.active { color: var(--accent); }
+
+  @media (min-width: 900px) {
+    .app { grid-template-columns: 250px minmax(0, 1fr); }
+    .topbar, .tabbar { display: none; }
+    main { padding: 32px 32px 40px; }
+    .sidebar { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 0; height: 100vh; padding: 26px 16px 20px;
+      background: var(--surface); border-right: 1px solid var(--line); }
+    .sidebar .logo { padding: 0 8px 22px; }
+    .sidebar .nav-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; border-radius: 12px; border: 0;
+      background: none; color: var(--muted); font-weight: 600; cursor: pointer; text-align: left; }
+    .sidebar .nav-item:hover { background: var(--surface-2); color: var(--text); }
+    .sidebar .nav-item.active { background: var(--accent-soft); color: var(--accent); }
+    .data-card { margin-top: auto; background: var(--yellow-soft); border-radius: 16px; padding: 14px; font-size: 13px; }
+    .data-card b { display: block; margin-bottom: 2px; }
+  }
+  @media (min-width: 1280px) {
+    .app { grid-template-columns: 250px minmax(0, 1fr) 300px; }
+    .side-panel { display: block; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 32px 24px 32px 0; }
+  }
+
+  .view { display: none; } .view.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .view.active { animation: none; } }
+
+  .page-head h2 { margin: 0; font-size: 28px; letter-spacing: -.02em; font-weight: 800; }
+  .page-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); padding: 18px; margin-top: 16px; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+  .card-head h3 { margin: 0; font-size: 17px; }
+  .card-head span { font-size: 13px; color: var(--muted); }
+
+  /* ===== Trang chủ ===== */
+  .hero { position: relative; padding: 8px 0 4px; container-type: inline-size; }
+  .hero > *:not(.deco-layer) { position: relative; z-index: 1; }
+  /* Hình trang trí chỉ hiện khi đủ chỗ, chữ chừa sẵn 250px bên phải → không bao giờ chồng lên chữ */
+  .deco-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; display: none; }
+  @container (min-width: 760px) {
+    .deco-layer { display: block; }
+    .hero > *:not(.deco-layer) { max-width: calc(100% - 250px); }
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; background: var(--yellow-soft); color: var(--yellow-ink); font-size: 12px;
+    font-weight: 700; letter-spacing: .06em; padding: 6px 12px; border-radius: 999px; }
+  .hero-title { font-size: clamp(38px, 10vw, 64px); line-height: 1.35; letter-spacing: -.035em; margin: 16px 0 12px; font-weight: 800; }
+  .hero-title span { color: var(--accent); }
+  .hero-sub { color: var(--muted); max-width: 470px; margin: 0 0 18px; }
+  .features { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 22px; max-width: 560px; }
+  @media (min-width: 520px) { .features { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .feature { display: flex; gap: 10px; align-items: center; }
+  .feature b { display: block; font-size: 13px; }
+  .feature small { color: var(--muted); font-size: 12px; }
+  .f-ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; flex: none; font-family: var(--hanzi); font-size: 18px;
+    background: var(--accent-soft); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent); }
+  .f-ico.y { background: var(--yellow-soft); color: var(--yellow-ink); border-color: color-mix(in srgb, var(--yellow) 30%, transparent); }
+  .cta { display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff;
+    border: 0; border-radius: 14px; padding: 14px 24px; font-size: 17px; font-weight: 700; box-shadow: var(--glow); cursor: pointer; min-height: 54px; }
+  .cta:active { transform: scale(.98); }
+  .hero-note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .deco { position: absolute; pointer-events: none; z-index: 0; }
+  .orb { right: -70px; top: 10px; width: 170px; height: 170px; border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #ffe7a3, var(--yellow) 45%, #ff9d1f 100%); opacity: .45; }
+  .ring1, .ring2 { border: 3px solid var(--yellow); border-radius: 50%; display: none; }
+  .ring1 { width: 16px; height: 16px; right: 185px; top: 40px; }
+  .ring2 { width: 11px; height: 11px; right: 210px; top: 120px; }
+  @media (min-width: 640px) { .orb { right: -40px; width: 200px; height: 200px; opacity: .95; } .ring1, .ring2 { display: block; } }
+
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+  .stat { display: flex; gap: 10px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px; box-shadow: var(--shadow); }
+  .stat-ico { width: 38px; height: 38px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center;
+    font-family: var(--hanzi); font-size: 18px; flex: none; }
+  .stat b { display: block; font-size: 20px; line-height: 1.1; }
+  .stat small { color: var(--muted); font-size: 12px; }
+  @media (max-width: 480px) { .stat { flex-direction: column; align-items: flex-start; gap: 6px; } }
+
+  .hsk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 8px; }
+  .hsk-btn { border: 1px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 8px 4px; min-height: 74px; cursor: pointer;
+    color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; transition: transform .15s; }
+  .hsk-btn small { font-size: 10.5px; color: var(--muted); font-weight: 700; letter-spacing: .06em; }
+  .hsk-btn strong { font-size: 22px; line-height: 1.1; }
+  .hsk-btn.all strong { font-size: 15px; }
+  .hsk-btn .cnt { font-size: 11px; color: var(--muted); }
+  .hsk-btn.active { background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-color: transparent; color: #fff; box-shadow: var(--glow); }
+  .hsk-btn.active small, .hsk-btn.active .cnt { color: rgba(255,255,255,.88); }
+  .hsk-btn:disabled { opacity: .4; cursor: default; }
+
+  .group-label { margin: 14px 0 8px; }
+  .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+  .lesson-btn { min-height: 70px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+    cursor: pointer; padding: 10px 12px; text-align: left; display: flex; flex-direction: column; justify-content: center; }
+  .lesson-btn strong { font-size: 15px; }
+  .lesson-btn small { color: var(--muted); font-size: 12px; }
+  .lesson-btn.all { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+  .lesson-btn.active { border: 2px solid var(--accent); }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-ink); overflow-wrap: anywhere; }
+  .tag.gray { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+
+  /* ===== Bộ lọc & danh sách từ ===== */
+  .filter-bar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  @media (max-width: 419px) { .filter-bar { grid-template-columns: minmax(0, 1fr); } }
+  .filter-bar select, .search { width: 100%; font-size: 16px; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--text); }
+  .search { margin-top: 8px; }
+  .toolbar { padding: 12px; }
+  .result-count { color: var(--muted); font-size: 13px; margin: 14px 2px 8px; }
+  .word-grid { display: grid; gap: 10px; }
+  @media (min-width: 700px) { .word-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .word { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 18px; padding: 12px; cursor: pointer; box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s; }
+  @media (hover: hover) { .word:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); } }
+  .word .hz { min-width: 64px; max-width: min(7.5em, 34vw); min-height: 64px; padding: 6px 8px; border-radius: 16px; background: var(--accent-soft); display: grid; place-items: center;
+    font-family: var(--hanzi); font-size: 28px; line-height: 1.15; text-align: center; }
+  .word .py { color: var(--accent); font-weight: 700; }
+  .word .mn { color: var(--muted); font-size: 14px; }
+  .word .tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+  .empty { text-align: center; color: var(--muted); padding: 32px 16px; }
+  .btn-icon { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--accent);
+    cursor: pointer; display: grid; place-items: center; flex: none; }
+  .btn-primary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; border-radius: 14px; border: 0;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: var(--glow); }
+  .btn-primary:focus:not(:focus-visible) { outline: none; }
+  .btn-primary:focus-visible, .cta:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+  .btn-secondary { width: 100%; min-height: 48px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--text);
+    font-size: 15px; font-weight: 600; cursor: pointer; }
+  .link-btn { background: none; border: 0; color: var(--muted); text-decoration: underline; font-size: 14px; min-height: 44px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ===== Thẻ chi tiết ===== */
+  .sheet-bg { position: fixed; inset: 0; background: rgba(20,12,5,.45); display: none; z-index: 20; backdrop-filter: blur(2px); }
+  .sheet-bg.open { display: block; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 92vh; overflow-y: auto; background: var(--surface);
+    border-radius: 26px 26px 0 0; padding: 12px 20px calc(24px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; box-shadow: var(--shadow-lg); }
+  @media (min-width: 900px) {
+    .sheet { left: 50%; top: 50%; bottom: auto; right: auto; transform: translate(-50%, -50%); width: min(560px, 92vw); max-height: 88vh; border-radius: 26px; padding: 24px; }
+    .grab { display: none; }
+  }
+  .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 12px; }
+  .detail-tags { display: flex; gap: 6px; justify-content: center; }
+  .detail-hz { font-family: var(--hanzi); font-size: 76px; text-align: center; line-height: 1.35; }
+  .detail-py { text-align: center; color: var(--accent); font-size: 22px; font-weight: 700; }
+  .detail-mn { text-align: center; font-size: 18px; margin: 4px 0 12px; }
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--muted); margin: 18px 0 8px; }
+  .extra { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; }
+  .extra div { padding: 4px 0; } .extra b { color: var(--muted); font-weight: 600; }
+
+  /* ===== Ảnh thứ tự nét ===== */
+  .strokes { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .strokes figure { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 6px; text-align: center; }
+  .strokes img { width: 140px; height: 140px; object-fit: contain; display: block; }
+  .strokes figcaption { font-family: var(--hanzi); color: #555; font-size: 14px; }
+  .gif-frame { width: 140px; min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px 4px; }
+  /* Màn hẹp: ảnh nhỏ lại để xếp được 2 ảnh mỗi hàng */
+  @media (max-width: 420px) { .strokes img { width: 104px; height: 104px; } .gif-frame { width: 104px; min-height: 104px; } .strokes { gap: 8px; } }
+  .gif-note { font-size: 11px; color: #777; text-align: center; }
+  .gif-note a { color: #777; }
+  .stroke-link { text-decoration: none; color: inherit; border-radius: 16px; }
+  .stroke-char { font-family: var(--hanzi); font-size: 76px; line-height: 1.35; color: #1f1d1a; }
+  .stroke-link .gif-note { color: #e2560a; font-weight: 600; text-decoration: underline; }
+  .gif-frame { cursor: pointer; }
+  .stroke-svg { width: 120px; height: 120px; display: block; }
+  .stroke-grid { fill: none; stroke: #f0dccb; stroke-width: 6; stroke-dasharray: 24 18; }
+  .stroke-ghost { fill: #ebe4dc; }
+  .stroke-ink { fill: none; stroke: #ff6a1a; stroke-width: 200; stroke-linecap: round; stroke-linejoin: round; }
+  @media (max-width: 420px) { .stroke-svg { width: 88px; height: 88px; } }
+  @media (max-width: 420px) { .stroke-char { font-size: 56px; } }
+  .spinner { width: 36px; height: 36px; border: 4px solid #f3e6d8; border-top-color: #ff6a1a; border-radius: 50%; animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+
+  /* ===== Flashcard ===== */
+  /* Hai mặt thẻ nằm chồng trong cùng 1 ô lưới → thẻ tự cao theo mặt có nhiều nội dung hơn, không cắt dữ liệu */
+  .card3d { perspective: 1200px; max-width: 440px; margin: 18px auto 16px; cursor: pointer; }
+  .card3d-inner { display: grid; transition: transform .5s; transform-style: preserve-3d; }
+  .card3d.flipped .card3d-inner { transform: rotateY(180deg); }
+  .face { grid-area: 1 / 1; position: relative; min-height: 380px; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 28px;
+    background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 24px 20px; text-align: center; }
+  /* Safari (iPhone) không ẩn đúng mặt sau khi lật 3D → ẩn hẳn mặt không nhìn thấy, đổi lúc thẻ quay được nửa vòng (0,25 giây) */
+  .face { transition: visibility 0s linear .25s; }
+  .card3d:not(.flipped) .face.back, .card3d.flipped .face.front { visibility: hidden; }
+  .face.back { transform: rotateY(180deg); background: linear-gradient(165deg, var(--surface), var(--accent-soft)); }
+  .face .big { font-family: var(--hanzi); font-size: 116px; line-height: 1.35; }
+  .face .hint { color: var(--muted); font-size: 13px; margin-top: 18px; }
+  .fc-nav { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; max-width: 440px; margin: 0 auto; align-items: center; }
+  .fc-nav .count { color: var(--muted); min-width: 64px; text-align: center; font-weight: 600; }
+  .center { text-align: center; }
+
+  /* ===== Kiểm tra (dạng hội thoại) ===== */
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 4px; margin-top: 12px; }
+  .seg button { min-height: 42px; border-radius: 10px; border: 0; background: none; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; padding: 4px; }
+  .seg button.active { background: var(--accent-soft); color: var(--accent); }
+  .chat { padding: 0; overflow: hidden; }
+  .chat-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .chat-head b { display: block; font-size: 15px; } .chat-head small { color: var(--muted); font-size: 12px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; color: #fff; font-family: var(--hanzi);
+    background: linear-gradient(135deg, var(--accent-2), var(--accent)); box-shadow: var(--glow); }
+  .msg .avatar { width: 30px; height: 30px; font-size: 14px; }
+  .score-pill { margin-left: auto; background: var(--accent-soft); color: var(--accent-ink); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .msgs { padding: 18px 14px; display: flex; flex-direction: column; gap: 12px; background: var(--surface-2); min-height: 260px; }
+  .msg { display: flex; gap: 8px; align-items: flex-end; }
+  .msg.me { justify-content: flex-end; }
+  .bubble { background: var(--surface); border: 1px solid var(--line); border-radius: 20px 20px 20px 6px; padding: 12px 16px; max-width: 86%; box-shadow: var(--shadow); }
+  .msg.me .bubble { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; border: 0; border-radius: 20px 20px 6px 20px; box-shadow: var(--glow); }
+  .q-label { color: var(--muted); font-size: 13px; }
+  .q-prompt { font-size: 22px; font-weight: 700; margin-top: 2px; }
+  .q-prompt.hz { font-family: var(--hanzi); font-size: 64px; font-weight: 400; line-height: 1.35; }
+  .hz-ans { font-family: var(--hanzi); font-size: 26px; }
+  .verdict { font-weight: 800; }
+  .verdict.ok { color: var(--ok); } .verdict.bad { color: var(--bad); }
+  .answer { margin-top: 6px; }
+  .answer .a-hz { font-family: var(--hanzi); font-size: 40px; line-height: 1.35; }
+  .answer .a-py { color: var(--accent); font-weight: 700; }
+  .bubble .strokes { justify-content: flex-start; margin-top: 10px; }
+  .input-bar { display: flex; gap: 8px; align-items: center; padding: 12px; border-top: 1px solid var(--line); background: var(--surface); }
+  .q-input { flex: 1; min-width: 0; font-size: 16px; padding: 12px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); }
+  .q-input.hz { font-family: var(--hanzi); font-size: 20px; padding: 9px 16px; }
+  .round { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted);
+    display: grid; place-items: center; cursor: pointer; flex: none; }
+  .round:disabled { opacity: .45; cursor: default; }
+  .round.send { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; border: 0; box-shadow: var(--glow); }
+  .chat-foot { padding: 4px 12px 12px; text-align: center; background: var(--surface); }
+  .chat-actions { padding: 12px 16px 14px; display: grid; gap: 4px; background: var(--surface); border-top: 1px solid var(--line); }
+  .result { text-align: center; padding: 8px 4px; }
+  .big-score { font-size: 52px; font-weight: 800; color: var(--accent); line-height: 1.35; }
+  .wrong-list { text-align: left; margin: 12px 0; }
+  .wrong-list div { padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .wrong-list .hz { font-family: var(--hanzi); font-size: 22px; margin-right: 8px; }
+
+  /* ===== Cột tiến độ (máy tính rộng) ===== */
+  .side-panel .card:first-child { margin-top: 0; }
+  .ring-wrap { position: relative; width: 140px; height: 140px; margin: 4px auto 10px; }
+  .ring-wrap svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+  .ring-label { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .ring-label b { font-size: 28px; display: block; line-height: 1; }
+  .ring-label small { color: var(--muted); font-size: 11px; }
+  .kv { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .kv b { text-align: right; }
+  .kv:last-child { border-bottom: 0; }
+  .kv span { color: var(--muted); } .kv b { font-weight: 700; }
+  .tip { background: var(--yellow-soft); border-color: transparent; box-shadow: none; font-size: 14px; }
+  .tip b { display: block; margin-bottom: 4px; }
+
+  .loading-screen { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px; color: var(--muted); padding: 16px; text-align: center; }
+  .loading-screen.hidden { display: none; }
+  .foot { text-align: center; color: var(--muted); font-size: 12px; padding: 28px 0 0; }
+  .foot a { color: inherit; }
+
+  /* ===== Màn hình tải / lỗi ===== */
+  .hidden { display: none !important; }
+  #load-msg { max-width: 460px; overflow-wrap: anywhere; }
+  .loading-screen.error #load-msg { color: var(--bad); font-weight: 600; }
+
+</style>
+</head>
+<body>
+<div class="loading-screen" id="loading-screen">
+  <div class="logo"><span class="logo-mark">汉</span><span>Học<b>Hán</b></span></div>
+  <div class="spinner" id="load-spinner"></div>
+  <div id="load-msg">Đang tải dữ liệu từ Google Drive…</div>
+  <button class="cta hidden" id="load-retry">Thử lại</button>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-mark">汉</span><span>Học<b>Hán</b></span></div>
+    <nav id="side-nav"></nav>
+    <div class="data-card"><b>Dữ liệu</b><span id="data-info"></span></div>
+  </aside>
+
+  <div>
+    <header class="topbar">
+      <div class="logo"><span class="logo-mark">汉</span><span>Học<b>Hán</b></span></div>
+      <div class="sub" id="subtitle"></div>
+    </header>
+
+    <main>
+      <!-- Trang chủ / chọn bài -->
+      <section class="view active" id="v-pick">
+        <div class="hero">
+          <div class="deco-layer" aria-hidden="true"><div class="deco orb"></div><div class="deco ring1"></div><div class="deco ring2"></div></div>
+          <div class="pill">✦ HỌC TỪ VỰNG HSK 1–9</div>
+          <h1 class="hero-title">Học tiếng Trung<br><span>mỗi ngày</span></h1>
+          <p class="hero-sub">Chữ Hán, pinyin, nghĩa và thứ tự nét viết. Chọn cấp HSK, chọn bài rồi học bằng flashcard và tự kiểm tra.</p>
+          <div class="features">
+            <div class="feature"><span class="f-ico">笔</span><div><b>Thứ tự nét</b><small>Hoạt hình từng nét</small></div></div>
+            <div class="feature"><span class="f-ico y">卡</span><div><b>Flashcard</b><small>Xáo ngẫu nhiên</small></div></div>
+            <div class="feature"><span class="f-ico">考</span><div><b>Kiểm tra</b><small>Nghĩa ⇄ Chữ Hán</small></div></div>
+          </div>
+          <button class="cta" id="cta">Bắt đầu học <span aria-hidden="true">→</span></button>
+          <div class="hero-note" id="hero-note"></div>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div class="card">
+          <div class="card-head"><h3>Chọn cấp HSK</h3></div>
+          <div class="hsk-grid" id="hsk-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Chọn bài</h3><span id="lesson-sub"></span></div>
+          <div id="lesson-groups"></div>
+        </div>
+      </section>
+
+      <!-- Từ vựng -->
+      <section class="view" id="v-words">
+        <div class="page-head"><h2>Từ vựng</h2><p>Chạm vào một từ để xem chi tiết và thứ tự nét viết</p></div>
+        <div class="card toolbar">
+          <div class="filter-bar">
+            <select id="sel-hsk" aria-label="Cấp HSK"></select>
+            <select id="sel-lesson" aria-label="Bài"></select>
+          </div>
+          <input class="search" id="search" type="search" placeholder="Tìm chữ Hán, pinyin hoặc nghĩa…">
+        </div>
+        <div class="result-count" id="result-count"></div>
+        <div class="word-grid" id="word-list"></div>
+      </section>
+
+      <!-- Flashcard -->
+      <section class="view" id="v-flash">
+        <div class="page-head"><h2>Flashcard</h2><p>Chạm vào thẻ để lật · vuốt trái/phải để qua từ</p></div>
+        <div class="card toolbar">
+          <div class="filter-bar">
+            <select id="fc-sel-hsk" aria-label="Cấp HSK"></select>
+            <select id="fc-sel-lesson" aria-label="Bài"></select>
+          </div>
+        </div>
+        <div class="card3d" id="card">
+          <div class="card3d-inner">
+            <div class="face front"><div class="big" id="fc-hz"></div><div class="hint">Chạm để lật thẻ</div></div>
+            <div class="face back">
+              <div class="detail-py" id="fc-py"></div>
+              <div class="detail-mn" id="fc-mn"></div>
+              <div class="strokes" id="fc-strokes"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-nav">
+          <button class="btn-secondary" id="prev">‹ Trước</button>
+          <div class="count" id="fc-count"></div>
+          <button class="btn-primary" id="next">Sau ›</button>
+        </div>
+        <div class="center"><button class="link-btn" id="shuffle"></button></div>
+      </section>
+
+      <!-- Kiểm tra -->
+      <section class="view" id="v-quiz">
+        <div class="page-head"><h2>Kiểm tra</h2><p id="q-filter"></p></div>
+        <div class="card toolbar">
+          <div class="filter-bar">
+            <select id="q-sel-hsk" aria-label="Cấp HSK"></select>
+            <select id="q-sel-lesson" aria-label="Bài"></select>
+          </div>
+        </div>
+        <div class="seg" id="q-mode">
+          <button data-mode="random">Ngẫu nhiên</button>
+          <button data-mode="m2h">Nghĩa → Chữ Hán</button>
+          <button data-mode="h2m">Chữ Hán → Nghĩa</button>
+        </div>
+        <div class="card chat" id="q-body"></div>
+      </section>
+
+      <div class="foot">Thứ tự nét: <a href="http://bishun.strokeorder.info/" target="_blank" rel="noopener">bishun.strokeorder.info</a> · <span id="build-info"></span></div>
+    </main>
+  </div>
+
+  <aside class="side-panel">
+    <div class="card">
+      <div class="card-head"><h3>Kết quả kiểm tra</h3></div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc53d"/><stop offset="1" stop-color="#ff6a1a"/></linearGradient></defs>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="12"/>
+          <circle id="side-ring" cx="60" cy="60" r="50" fill="none" stroke="url(#rg)" stroke-width="12" stroke-linecap="round"
+            stroke-dasharray="314.16" stroke-dashoffset="314.16" style="transition: stroke-dashoffset .5s"/>
+        </svg>
+        <div class="ring-label"><div><b id="side-pct">0%</b><small>câu đúng</small></div></div>
+      </div>
+      <div class="kv"><span>Đã làm</span><b id="side-done">0</b></div>
+      <div class="kv"><span>Đúng</span><b id="side-right">0</b></div>
+      <div class="kv"><span>Còn lại</span><b id="side-left">0</b></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Đang học</h3></div>
+      <div class="kv"><span>Bộ lọc</span><b id="side-filter"></b></div>
+      <div class="kv"><span>Số từ</span><b id="side-count"></b></div>
+    </div>
+    <div class="card tip"><b>💡 Mẹo</b>Bật bàn phím tiếng Trung (Pinyin giản thể) để làm bài Nghĩa → Chữ Hán.</div>
+  </aside>
+</div>
+
+<nav class="tabbar" id="tabbar"></nav>
+
+<div class="sheet-bg" id="sheet-bg">
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <div class="detail-tags" id="d-tags"></div>
+    <div class="detail-hz" id="d-hz"></div>
+    <div class="detail-py" id="d-py"></div>
+    <div class="detail-mn" id="d-mn"></div>
+    <div class="center"><button class="btn-icon" id="d-speak" aria-label="Phát âm" style="margin: 0 auto"></button></div>
+    <div class="section-title">Thứ tự nét viết</div>
+    <div class="strokes" id="d-strokes"></div>
+    <div id="d-extra-wrap">
+      <div class="section-title">Thông tin thêm</div>
+      <div class="extra" id="d-extra"></div>
+    </div>
+    <button class="btn-primary" id="d-close" style="margin-top: 20px">Đóng</button>
+  </div>
+</div>
+
+<script>
+window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","builtAt":"2026-10-18T16:11:01.757Z"};
+// Parser CSV dùng chung cho trình duyệt (nhúng khi build) và script Node.
+// Giữ NGUYÊN VĂN nội dung từng ô: không cắt khoảng trắng, không đổi hoa/thường.
+function parseCSV(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);  // bỏ BOM UTF-8
+  const rows = [];
+  let row = [], field = "", inQuotes = false, i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if (c === '"') { inQuotes = true; i++; continue; }
+    if (c === ",") { row.push(field); field = ""; i++; continue; }
+    if (c === "\r" || c === "\n") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); rows.push(row); row = []; field = ""; i++; continue;
+    }
+    field += c; i++;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+// Đổi bảng CSV thành danh sách từ. Chỉ ĐỌC giá trị, không sửa.
+// Trả về { words, missing } — missing là các cột bắt buộc không tìm thấy.
+function rowsToWords(rows, columns, source) {
+  const header = rows[0] || [];
+  const find = name => header.findIndex(h => String(h).trim() === String(name).trim());  // chỉ so sánh
+  const idx = {};
+  const missing = [];
+  for (const [k, name] of Object.entries(columns)) {
+    idx[k] = find(name);
+    if (idx[k] < 0) missing.push(name);
+  }
+  if (missing.length) return { words: [], missing };
+  const main = new Set(Object.values(idx));
+  const words = [];
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r];
+    if (row.every(v => String(v).trim() === "")) continue;  // dòng trống hoàn toàn không phải là từ
+    const cell = i => (i >= 0 && i < row.length ? row[i] : "");
+    const extra = {};
+    header.forEach((h, i) => { if (!main.has(i) && cell(i) !== "") extra[h] = cell(i); });
+    words.push({
+      hz: cell(idx.hanzi), py: cell(idx.pinyin), mn: cell(idx.meaning),
+      hsk: cell(idx.hsk), lesson: cell(idx.lesson), extra, source
+    });
+  }
+  return { words, missing };
+}
+
+// Đổi bảng gviz (Google Visualization) thành mảng dòng giống CSV: dòng 0 là tiêu đề.
+// Lấy chuỗi hiển thị (f) nếu có, không thì giá trị gốc (v). Ô trống → "".
+// Trả về thêm danh sách cột Google nhận KHÔNG phải văn bản (có nguy cơ mất ô khi cột trộn số và chữ).
+function gvizToRows(table) {
+  const header = table.cols.map(c => c.label == null ? "" : String(c.label));
+  const cellText = c => c == null ? "" : c.f != null ? String(c.f) : c.v == null ? "" : String(c.v);
+  const rows = [header, ...table.rows.map(r => header.map((_, i) => cellText((r.c || [])[i])))];
+  const nonText = table.cols.filter(c => c.type !== "string" && c.label).map(c => c.label);
+  return { rows, nonText };
+}
+
+if (typeof module !== "undefined") module.exports = { parseCSV, rowsToWords, gvizToRows };
+
+// Cấu hình được chèn khi build (scripts/build.js).
+// File KHÔNG chứa dữ liệu nào lấy từ từ vựng: danh sách từ ban đầu trống, mỗi lần mở xoá và tải mới từ Google Drive (loadData).
+const CFG = window.APP_CONFIG;
+const HSK_LEVELS = CFG.hskLevels;
+const BISHUN = CFG.bishun;
+const STROKE_DATA = CFG.strokeData;
+let WORDS = [];
+
+// Bộ lọc: chỉ so sánh giá trị, không sửa dữ liệu gốc
+const key = v => String(v ?? "").trim();
+const lessonKeyOf = w => key(w.hsk) + "|" + key(w.lesson);
+const lessonLabel = v => key(v) === "" ? "Chưa phân loại" : (/^\d+$/.test(key(v)) ? "Bài " + key(v) : v);
+const hskLabel = v => HSK_LEVELS.includes(key(v)) ? "HSK " + key(v) : "Chưa phân loại";
+
+let state = { hsk: "all", lesson: "all" };
+try { Object.assign(state, JSON.parse(localStorage.getItem("filter") || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem("filter", JSON.stringify(state)); } catch (e) {} };
+
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+// Chữ Hán cỡ lớn tự co theo số chữ để vừa chiều ngang (vẫn xuống dòng nếu cần, không nhỏ hơn 36px)
+const fitHz = (node, text, max, cap, pad) => {
+  const n = Math.max(1, [...String(text ?? "")].length);
+  node.style.fontSize = `clamp(36px, calc((min(100vw, ${cap}px) - ${pad}px) / ${n}), ${max}px)`;
+};
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+// Biểu tượng (SVG cố định của giao diện, không chứa dữ liệu từ Drive)
+const ICONS = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  book: '<path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z"/><path d="M5 18a2 2 0 0 1 2-2h12"/>',
+  cards: '<rect x="3" y="7" width="14" height="14" rx="2.5"/><path d="M7 3h11.5A2.5 2.5 0 0 1 21 5.5V17"/>',
+  quiz: '<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/>',
+  speak: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
+  send: '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>',
+  bulb: '<path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
+  shuffle: '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>'
+};
+const icon = name => {
+  const s = el("span", "ico");
+  s.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + "</svg>";
+  return s;
+};
+const NAV = [
+  { view: "v-pick", label: "Trang chủ", icon: "home" },
+  { view: "v-words", label: "Từ vựng", icon: "book" },
+  { view: "v-flash", label: "Flashcard", icon: "cards" },
+  { view: "v-quiz", label: "Kiểm tra", icon: "quiz" }
+];
+function renderNav() {
+  for (const box of [$("side-nav"), $("tabbar")]) {
+    box.replaceChildren();
+    NAV.forEach(n => {
+      const b = el("button", "nav-item"); b.dataset.view = n.view;
+      b.append(icon(n.icon), el("span", null, n.label));
+      b.onclick = () => show(n.view);
+      box.append(b);
+    });
+  }
+}
+
+const byHsk = h => WORDS.filter(w => h === "all" || key(w.hsk) === h);
+const filtered = () => byHsk(state.hsk).filter(w => state.lesson === "all" || lessonKeyOf(w) === state.lesson);
+// Các bài theo thứ tự xuất hiện lần đầu, nhóm theo HSK
+function lessonGroups(h) {
+  const groups = new Map();
+  byHsk(h).forEach(w => {
+    const g = key(w.hsk);
+    if (!groups.has(g)) groups.set(g, new Map());
+    const m = groups.get(g), k = lessonKeyOf(w);
+    if (!m.has(k)) m.set(k, { key: k, label: lessonLabel(w.lesson), count: 0 });
+    m.get(k).count++;
+  });
+  return groups;
+}
+function filterText() {
+  const h = state.hsk === "all" ? "Tất cả HSK" : "HSK " + state.hsk;
+  if (state.lesson === "all") return h + " · Tất cả bài";
+  const [lh, ll] = state.lesson.split("|");
+  return (state.hsk === "all" ? hskLabel(lh) : h) + " · " + lessonLabel(ll);
+}
+
+// ===== Trang chủ =====
+function renderPick() {
+  $("hero-note").textContent = "Đang chọn: " + filterText() + " · " + filtered().length + " từ";
+
+  const st = $("stats"); st.replaceChildren();
+  let lessons = 0; lessonGroups("all").forEach(m => lessons += m.size);
+  [["字", WORDS.length, "Từ vựng"], ["级", HSK_LEVELS.filter(l => byHsk(l).length).length, "Cấp HSK"], ["课", lessons, "Bài học"]].forEach(([g, n, t]) => {
+    const s = el("div", "stat"), d = el("div");
+    d.append(el("b", null, String(n)), el("small", null, t));
+    s.append(el("span", "stat-ico", g), d);
+    st.append(s);
+  });
+
+  const grid = $("hsk-grid"); grid.replaceChildren();
+  const mk = (val, top, label, count) => {
+    const b = el("button", "hsk-btn" + (val === "all" ? " all" : "") + (state.hsk === val ? " active" : ""));
+    b.append(el("small", null, top), el("strong", null, label), el("span", "cnt", count + " từ"));
+    b.disabled = count === 0;
+    b.onclick = () => { state.hsk = val; state.lesson = "all"; save(); renderPick(); };
+    grid.append(b);
+  };
+  mk("all", "HSK", "Tất cả", WORDS.length);
+  HSK_LEVELS.forEach(l => mk(l, "HSK", l, byHsk(l).length));
+
+  $("lesson-sub").textContent = state.hsk === "all" ? "Tất cả cấp" : "HSK " + state.hsk;
+  const box = $("lesson-groups"); box.replaceChildren();
+  const allBtn = el("button", "lesson-btn all");
+  allBtn.append(el("strong", null, "Học tất cả"), el("small", null, byHsk(state.hsk).length + " từ"));
+  allBtn.onclick = () => { state.lesson = "all"; save(); show("v-words"); };
+  const top = el("div", "lesson-grid"); top.append(allBtn); box.append(top);
+  lessonGroups(state.hsk).forEach((lessons, g) => {
+    if (state.hsk === "all") { const lb = el("div", "group-label"); lb.append(el("span", "tag", hskLabel(g))); box.append(lb); }
+    else { const sp = el("div"); sp.style.height = "8px"; box.append(sp); }
+    const lg = el("div", "lesson-grid");
+    lessons.forEach(L => {
+      const b = el("button", "lesson-btn" + (state.lesson === L.key ? " active" : ""));
+      b.append(el("strong", null, L.label), el("small", null, L.count + " từ"));
+      b.onclick = () => { state.lesson = L.key; save(); show("v-words"); };
+      lg.append(b);
+    });
+    box.append(lg);
+  });
+  renderSide();
+}
+
+function fillSelects(hskId, lessonId) {
+  const sh = $(hskId); sh.replaceChildren();
+  sh.append(new Option("Tất cả HSK", "all"));
+  HSK_LEVELS.forEach(l => { const o = new Option("HSK " + l + " (" + byHsk(l).length + ")", l); o.disabled = !byHsk(l).length; sh.append(o); });
+  sh.value = state.hsk;
+  const sl = $(lessonId); sl.replaceChildren();
+  sl.append(new Option("Tất cả bài", "all"));
+  lessonGroups(state.hsk).forEach((lessons, g) => lessons.forEach(L =>
+    sl.append(new Option((state.hsk === "all" ? hskLabel(g) + " · " : "") + L.label + " (" + L.count + ")", L.key))));
+  sl.value = state.lesson;
+}
+
+// ===== Từ vựng =====
+function renderWords() {
+  fillSelects("sel-hsk", "sel-lesson");
+  const q = $("search").value.trim().toLowerCase(), box = $("word-list"); box.replaceChildren();
+  const list = filtered().filter(w => !q || (w.hz + w.py + w.mn).toLowerCase().includes(q));
+  $("result-count").textContent = list.length + " từ · " + filterText();
+  if (!list.length) box.append(el("div", "empty", "Không có từ nào phù hợp."));
+  list.forEach(w => {
+    const row = el("div", "word");
+    const mid = el("div"); mid.append(el("div", "py", w.py), el("div", "mn", w.mn));
+    const tags = el("div", "tags"); tags.append(el("span", "tag", hskLabel(w.hsk)), el("span", "tag gray", lessonLabel(w.lesson)));
+    mid.append(tags);
+    const sp = el("button", "btn-icon"); sp.append(icon("speak")); sp.setAttribute("aria-label", "Phát âm");
+    sp.onclick = e => { e.stopPropagation(); speak(w.hz); };
+    const tile = el("div", "hz", w.hz);
+    const n = [...w.hz].length;
+    tile.style.fontSize = n <= 2 ? "28px" : n === 3 ? "24px" : "20px";
+    row.append(tile, mid, sp);
+    row.onclick = () => openDetail(w);
+    box.append(row);
+  });
+  renderSide();
+}
+
+// ===== Thứ tự nét =====
+// Khi học đến một chữ: tải dữ liệu nét của riêng chữ đó (Hanzi Writer, nguồn mở) rồi tự vẽ hoạt hình từng nét.
+// Không lưu gì. Đang tải → biểu tượng loading; lỗi / thiếu chữ → hiện chữ kèm link mở bishun.
+const SVGNS = "http://www.w3.org/2000/svg";
+let strokeSeq = 0;
+const svgEl = (tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+function strokeFallback(frame, ch) {
+  const a = el("a", "stroke-link");
+  a.href = BISHUN + "/mandarin.php?q=" + encodeURIComponent(ch);
+  a.target = "_blank"; a.rel = "noopener";
+  a.setAttribute("aria-label", "Xem thứ tự nét chữ " + ch + " trên bishun");
+  a.onclick = e => e.stopPropagation();
+  a.append(el("div", "stroke-char", ch), el("div", "gif-note", "Xem thứ tự nét ↗"));
+  frame.onclick = null;
+  frame.replaceChildren(a);
+}
+
+function drawStrokes(frame, ch, data) {
+  const id = ++strokeSeq;
+  const svg = svgEl("svg", { viewBox: "0 0 1024 1024", class: "stroke-svg", role: "img", "aria-label": "Thứ tự nét chữ " + ch });
+  ["M0 512H1024", "M512 0V1024", "M0 0L1024 1024", "M1024 0L0 1024"].forEach(d => svg.append(svgEl("path", { d, class: "stroke-grid" })));  // ô chữ điền
+  const g = svgEl("g", { transform: "translate(0, 900) scale(1, -1)" });  // toạ độ dữ liệu có trục y hướng lên
+  const inks = data.strokes.map((d, i) => {
+    g.append(svgEl("path", { d, class: "stroke-ghost" }));
+    const clip = svgEl("clipPath", { id: "sc" + id + "-" + i });
+    clip.append(svgEl("path", { d }));
+    g.append(clip);
+    const pts = data.medians[i];
+    let len = 200;  // thêm 200 để phủ kín đầu và cuối nét
+    for (let k = 1; k < pts.length; k++) len += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);
+    const line = svgEl("path", { d: "M" + pts.map(p => p.join(" ")).join("L"), class: "stroke-ink",
+      "clip-path": "url(#sc" + id + "-" + i + ")", "stroke-dasharray": len, "stroke-dashoffset": len });
+    g.append(line);
+    return { line, len };
+  });
+  svg.append(g);
+  frame.replaceChildren(svg, el("div", "gif-note", "Chạm để vẽ lại"));
+  // Vẽ lần lượt từng nét theo đúng thứ tự; vẽ xong nghỉ 1 giây rồi lặp lại liên tục (dừng khi ô không còn trên trang)
+  frame.play = () => {
+    clearTimeout(frame.loop);
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let delay = 0;
+    inks.forEach(({ line, len }) => {
+      line.getAnimations().forEach(a => a.cancel());
+      if (still) { line.style.strokeDashoffset = "0"; return; }
+      const duration = Math.max(250, len * 0.6);
+      line.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration, delay, fill: "forwards", easing: "ease-in-out" });
+      delay += duration + 120;
+    });
+    if (!still) frame.loop = setTimeout(() => { if (frame.isConnected) frame.play(); }, delay + 1000);
+  };
+  frame.onclick = e => { e.stopPropagation(); frame.play(); };
+  frame.play();
+}
+
+function strokesInto(box, hz) {
+  box.replaceChildren();
+  for (const ch of hz) {
+    if (!/\p{Script=Han}/u.test(ch)) continue;
+    const frame = el("div", "gif-frame");
+    const spin = el("div", "spinner"); spin.setAttribute("role", "status"); spin.setAttribute("aria-label", "Đang tải thứ tự nét");
+    frame.append(spin);
+    const fig = el("figure"); fig.append(frame);
+    box.append(fig);
+    fetch(STROKE_DATA + encodeURIComponent(ch) + ".json")
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(data => { if (!frame.isConnected) return; if (!data || !data.strokes || !data.medians) throw new Error("thiếu dữ liệu"); drawStrokes(frame, ch, data); })
+      .catch(() => { if (frame.isConnected) strokeFallback(frame, ch); });
+  }
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text); u.lang = "zh-CN";
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+function openDetail(w) {
+  $("d-tags").replaceChildren(el("span", "tag", hskLabel(w.hsk)), el("span", "tag gray", lessonLabel(w.lesson)));
+  $("d-hz").textContent = w.hz; $("d-py").textContent = w.py; $("d-mn").textContent = w.mn;
+  fitHz($("d-hz"), w.hz, 76, 560, 72);
+  $("d-speak").onclick = () => speak(w.hz);
+  strokesInto($("d-strokes"), w.hz);
+  const ex = $("d-extra"); ex.replaceChildren();
+  const keys = Object.keys(w.extra);
+  $("d-extra-wrap").style.display = keys.length ? "" : "none";
+  keys.forEach(k => { const d = el("div"); d.append(el("b", null, k + ": "), document.createTextNode(w.extra[k])); ex.append(d); });
+  $("sheet-bg").classList.add("open");
+}
+
+// ===== Flashcard: bộ thẻ xáo ngẫu nhiên (chỉ đổi thứ tự hiển thị, không đổi dữ liệu) =====
+let fcIndex = 0, fcDeck = [], fcFilter = null;
+const newDeck = () => { fcDeck = shuffle(filtered().slice()); fcIndex = 0; fcFilter = state.hsk + "|" + state.lesson; };
+function renderFlash() {
+  fillSelects("fc-sel-hsk", "fc-sel-lesson");
+  renderSide();
+  $("card").classList.remove("flipped");
+  if (!fcDeck.length) { $("fc-hz").textContent = "—"; $("fc-py").textContent = ""; $("fc-mn").textContent = ""; $("fc-strokes").replaceChildren(); $("fc-count").textContent = "0 / 0"; return; }
+  fcIndex = Math.min(fcIndex, fcDeck.length - 1);
+  const w = fcDeck[fcIndex];
+  $("fc-hz").textContent = w.hz; $("fc-py").textContent = w.py; $("fc-mn").textContent = w.mn;
+  fitHz($("fc-hz"), w.hz, 116, 472, 96);
+  strokesInto($("fc-strokes"), w.hz);
+  $("fc-count").textContent = (fcIndex + 1) + " / " + fcDeck.length;
+}
+// Qua hết bộ thẻ → tự xáo lại thứ tự mới
+const step = d => {
+  const n = fcDeck.length; if (!n) return;
+  if (d > 0 && fcIndex === n - 1) newDeck(); else fcIndex = (fcIndex + d + n) % n;
+  renderFlash();
+};
+
+// ===== Kiểm tra =====
+// Chỉ so sánh câu trả lời với dữ liệu gốc, không sửa dữ liệu
+const norm = s => key(s).normalize("NFC").toLowerCase().replace(/\s+/g, " ");
+let quizMode = "random";
+try { quizMode = localStorage.getItem("quizMode") || "random"; } catch (e) {}
+let quiz = null;
+
+function startQuiz(words) {
+  quiz = { filter: state.hsk + "|" + state.lesson, pool: shuffle(words.slice()), size: words.length,
+    right: 0, done: 0, wrong: [], cur: null, type: null, answered: false, hint: false, result: null, yours: "" };
+  nextQuestion();
+}
+function nextQuestion() {
+  quiz.cur = quiz.pool.pop() || null;
+  quiz.type = quizMode === "random" ? (Math.random() < .5 ? "m2h" : "h2m") : quizMode;
+  quiz.answered = false; quiz.hint = false; quiz.result = null; quiz.yours = "";
+  renderQuiz();
+}
+function isCorrect(w, type, ans) {
+  const a = norm(ans);
+  if (!a) return false;
+  if (type === "m2h") return a.replace(/\s/g, "") === norm(w.hz).replace(/\s/g, "");
+  // Nghĩa có thể gồm nhiều ý ngăn bởi dấu phẩy / chấm phẩy / gạch chéo: đúng một ý là được
+  const parts = String(w.mn ?? "").split(/[,;\/，；、]/).map(norm).filter(Boolean);
+  return a === norm(w.mn) || parts.includes(a);
+}
+function answer(skip) {
+  if (quiz.answered) return;
+  quiz.yours = skip ? "" : $("q-input").value;
+  quiz.result = !skip && isCorrect(quiz.cur, quiz.type, quiz.yours);
+  quiz.answered = true; quiz.done++;
+  if (quiz.result) quiz.right++; else quiz.wrong.push(quiz.cur);
+  renderQuiz();
+}
+function overrideCorrect() {
+  quiz.result = true; quiz.right++;
+  quiz.wrong = quiz.wrong.filter(w => w !== quiz.cur);
+  renderQuiz();
+}
+const remaining = () => quiz ? quiz.pool.length + (quiz.cur && !quiz.answered ? 1 : 0) : filtered().length;
+function bubble(who, ...children) {
+  const row = el("div", "msg " + who);
+  if (who === "bot") row.append(el("div", "avatar", "汉"));
+  const b = el("div", "bubble"); b.append(...children);
+  row.append(b);
+  return row;
+}
+
+function renderQuiz() {
+  fillSelects("q-sel-hsk", "q-sel-lesson");
+  $("q-filter").textContent = filterText();
+  document.querySelectorAll("#q-mode button").forEach(b => b.classList.toggle("active", b.dataset.mode === quizMode));
+  renderSide();
+
+  const body = $("q-body"); body.replaceChildren();
+  const head = el("div", "chat-head"), hi = el("div");
+  hi.append(el("b", null, "Gia sư Hán ngữ"), el("small", null, quiz.size ? "Còn " + remaining() + " câu" : "Chưa có câu hỏi"));
+  head.append(el("div", "avatar", "汉"), hi, el("span", "score-pill", "Đúng " + quiz.right + "/" + quiz.done));
+  const msgs = el("div", "msgs");
+  body.append(head, msgs);
+
+  if (!quiz.size) { msgs.append(bubble("bot", el("div", null, "Bài đang chọn chưa có từ nào. Hãy chọn cấp HSK hoặc bài khác ở phía trên."))); return; }
+
+  if (!quiz.cur) {  // Hết câu: tổng kết
+    const r = el("div", "result");
+    r.append(el("div", "q-label", "Kết quả lượt này"), el("div", "big-score", quiz.right + "/" + quiz.size),
+      el("div", "q-label", Math.round(quiz.right * 100 / quiz.size) + "% câu đúng"));
+    if (quiz.wrong.length) {
+      const wl = el("div", "wrong-list"); wl.append(el("div", "section-title", "Từ cần ôn lại"));
+      quiz.wrong.forEach(w => { const d = el("div"); d.append(el("span", "hz", w.hz), w.py + " — " + w.mn); wl.append(d); });
+      r.append(wl);
+    }
+    msgs.append(bubble("bot", r));
+    const acts = el("div", "chat-actions");
+    if (quiz.wrong.length) {
+      const again = el("button", "btn-primary", "Làm lại " + quiz.wrong.length + " từ sai");
+      again.onclick = () => startQuiz(quiz.wrong);
+      acts.append(again);
+    }
+    const restart = el("button", "btn-secondary", "Làm lại từ đầu");
+    restart.onclick = () => startQuiz(filtered());
+    acts.append(restart);
+    body.append(acts);
+    return;
+  }
+
+  const w = quiz.cur, m2h = quiz.type === "m2h";
+  const prompt = el("div", "q-prompt" + (m2h ? "" : " hz"), m2h ? w.mn : w.hz);
+  if (!m2h) fitHz(prompt, w.hz, 64, 700, 150);
+  msgs.append(bubble("bot", el("div", "q-label", m2h ? "Viết chữ Hán có nghĩa:" : "Chữ Hán này nghĩa là gì?"), prompt));
+  if (quiz.hint) { const h = el("div", null, "💡 Gợi ý pinyin: "); h.append(el("b", null, w.py)); msgs.append(bubble("bot", h)); }
+
+  if (!quiz.answered) {
+    const bar = el("div", "input-bar");
+    const hint = el("button", "round"); hint.append(icon("bulb")); hint.setAttribute("aria-label", "Gợi ý pinyin");
+    hint.disabled = quiz.hint;
+    const input = el("input", "q-input" + (m2h ? " hz" : ""));
+    input.id = "q-input"; input.type = "text"; input.autocomplete = "off"; input.spellcheck = false;
+    input.setAttribute("autocapitalize", "off"); input.setAttribute("autocorrect", "off");
+    input.lang = m2h ? "zh-CN" : "vi";
+    input.placeholder = m2h ? "Nhập chữ Hán…" : "Nhập nghĩa tiếng Việt…";
+    input.value = quiz.yours;
+    input.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); answer(false); } };
+    hint.onclick = () => { quiz.hint = true; quiz.yours = input.value; renderQuiz(); };
+    const send = el("button", "round send"); send.append(icon("send")); send.setAttribute("aria-label", "Kiểm tra");
+    send.onclick = () => answer(false);
+    bar.append(hint, input, send);
+    const foot = el("div", "chat-foot");
+    const skip = el("button", "link-btn", "Không biết, xem đáp án");
+    skip.onclick = () => answer(true);
+    foot.append(skip);
+    body.append(bar, foot);
+    if (!matchMedia("(hover: none)").matches) input.focus();
+    return;
+  }
+
+  msgs.append(bubble("me", quiz.yours ? el("div", m2h ? "hz-ans" : null, quiz.yours) : el("div", null, "Không biết, cho mình xem đáp án")));
+  const verdict = el("div", "verdict " + (quiz.result ? "ok" : "bad"), quiz.result ? "✓ Chính xác!" : "✗ Chưa đúng, đáp án là:");
+  const ans = el("div", "answer");
+  ans.append(el("div", "a-hz", w.hz), el("div", "a-py", w.py), el("div", null, w.mn));
+  const fb = [verdict, ans];
+  if (m2h) { const s = el("div", "strokes"); strokesInto(s, w.hz); fb.push(s); }
+  msgs.append(bubble("bot", ...fb));
+
+  const acts = el("div", "chat-actions");
+  const next = el("button", "btn-primary", quiz.pool.length ? "Câu tiếp →" : "Xem kết quả");
+  next.onclick = nextQuestion;
+  acts.append(next);
+  if (!quiz.result && quiz.yours) {
+    const ov = el("button", "link-btn", "Tôi trả lời đúng (tính là đúng)");
+    ov.onclick = overrideCorrect;
+    acts.append(ov);
+  }
+  body.append(acts);
+  next.focus();
+}
+
+// ===== Cột tiến độ =====
+function renderSide() {
+  const done = quiz ? quiz.done : 0, right = quiz ? quiz.right : 0;
+  const pct = done ? Math.round(right * 100 / done) : 0;
+  $("side-ring").style.strokeDashoffset = String(314.16 * (1 - pct / 100));
+  $("side-pct").textContent = pct + "%";
+  $("side-done").textContent = done;
+  $("side-right").textContent = right;
+  $("side-left").textContent = remaining();
+  $("side-filter").textContent = filterText();
+  $("side-count").textContent = filtered().length + " từ";
+}
+
+function show(view) {
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === view));
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+  if (view === "v-pick") renderPick();
+  if (view === "v-words") renderWords();
+  if (view === "v-flash") { if (fcFilter !== state.hsk + "|" + state.lesson) newDeck(); renderFlash(); }
+  if (view === "v-quiz") { if (!quiz || quiz.filter !== state.hsk + "|" + state.lesson) startQuiz(filtered()); else renderQuiz(); }
+  window.scrollTo(0, 0);
+}
+
+// Đổi HSK / Bài ở bất kỳ tab nào → dùng chung bộ lọc
+function onFilter(hskId, lessonId, after) {
+  $(hskId).onchange = e => { state.hsk = e.target.value; state.lesson = "all"; save(); after(); };
+  $(lessonId).onchange = e => { state.lesson = e.target.value; save(); after(); };
+}
+onFilter("sel-hsk", "sel-lesson", renderWords);
+onFilter("fc-sel-hsk", "fc-sel-lesson", () => { newDeck(); renderFlash(); });
+onFilter("q-sel-hsk", "q-sel-lesson", () => startQuiz(filtered()));
+document.querySelectorAll("#q-mode button").forEach(b => b.onclick = () => {
+  quizMode = b.dataset.mode;
+  try { localStorage.setItem("quizMode", quizMode); } catch (e) {}
+  startQuiz(filtered());
+});
+
+$("cta").onclick = () => show("v-words");
+$("search").oninput = renderWords;
+$("d-speak").append(icon("speak"));
+$("d-close").onclick = () => $("sheet-bg").classList.remove("open");
+$("sheet-bg").onclick = e => { if (e.target.id === "sheet-bg") $("sheet-bg").classList.remove("open"); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("sheet-bg").classList.remove("open"); });
+// Lật thẻ; sang mặt sau thì vẽ lại thứ tự nét từ đầu
+$("card").onclick = () => { if ($("card").classList.toggle("flipped")) $("fc-strokes").querySelectorAll(".gif-frame").forEach(f => f.play && f.play()); };
+$("prev").onclick = () => step(-1);
+$("next").onclick = () => step(1);
+$("shuffle").append(icon("shuffle"), "Xáo lại thứ tự");
+$("shuffle").onclick = () => { newDeck(); renderFlash(); };
+let sx = null;
+$("card").addEventListener("touchstart", e => sx = e.touches[0].clientX, { passive: true });
+$("card").addEventListener("touchend", e => {
+  if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; sx = null;
+  if (Math.abs(dx) > 50) { e.preventDefault(); step(dx < 0 ? 1 : -1); }
+});
+
+// ===== Tải dữ liệu từ Google Drive mỗi lần mở file =====
+// Dùng gviz JSONP (thẻ <script>) vì Google không cho fetch() đọc file khi mở trực tiếp (file://) do CORS.
+let gvizSeq = 0;
+const warnings = [];
+function loadGviz(f) {
+  return new Promise((resolve, reject) => {
+    const cb = "__gviz" + (++gvizSeq) + "_" + Date.now();
+    const s = document.createElement("script");
+    const done = () => { clearTimeout(timer); delete window[cb]; s.remove(); };
+    const timer = setTimeout(() => { done(); reject(new Error(`Không tải được file "${f.name}". Kiểm tra mạng internet và file được chia sẻ "Bất kỳ ai có đường liên kết đều xem được".`)); }, 20000);
+    window[cb] = data => {
+      done();
+      if (!data || data.status !== "ok") reject(new Error(`Google báo lỗi khi đọc file "${f.name}": ${data && data.errors ? data.errors.map(e => e.detailed_message || e.message || e.reason).join("; ") : "không rõ"}`));
+      else resolve(data.table);
+    };
+    s.onerror = () => { done(); reject(new Error("Không kết nối được Google Drive. Kiểm tra mạng internet rồi thử lại.")); };
+    s.src = f.gviz + cb + "&_=" + Date.now();  // tham số _ để luôn lấy bản mới nhất
+    document.head.append(s);
+  });
+}
+
+async function fetchFile(f) {
+  const { rows, nonText } = gvizToRows(await loadGviz(f));
+  const { words, missing } = rowsToWords(rows, CFG.columns, f.name);
+  if (missing.length) throw new Error(`File "${f.name}" thiếu cột: ${missing.join(", ")}. Kiểm tra dòng tiêu đề ở sheet đầu tiên.`);
+  if (nonText.length) warnings.push(`⚠ File "${f.name}": cột ${nonText.join(", ")} chưa định dạng Văn bản, Google có thể bỏ trống ô có kiểu khác. Hãy định dạng các cột này là Văn bản.`);
+  return words;
+}
+
+async function loadData() {
+  const scr = $("loading-screen");
+  scr.classList.remove("hidden", "error");
+  $("load-spinner").classList.remove("hidden");
+  $("load-retry").classList.add("hidden");
+  $("load-msg").textContent = "Đang tải dữ liệu từ Google Drive…";
+  // Xoá danh sách cũ trước khi tải danh sách mới
+  WORDS = []; quiz = null; fcDeck = []; fcFilter = null;
+  warnings.length = 0;
+  try {
+    const parts = await Promise.all(CFG.files.map(fetchFile));  // giữ thứ tự file như lúc build
+    WORDS = parts.flat();
+    if (!WORDS.length) throw new Error("Folder Google Drive chưa có từ nào. Hãy nhập từ vựng vào sheet đầu tiên rồi mở lại.");
+  } catch (e) {
+    scr.classList.add("error");
+    $("load-spinner").classList.add("hidden");
+    $("load-msg").textContent = e.message;
+    $("load-retry").classList.remove("hidden");
+    return;
+  }
+  // Bộ lọc đã nhớ từ lần trước có thể không còn trong dữ liệu mới → về "Tất cả"
+  if (state.hsk !== "all" && !byHsk(state.hsk).length) state.hsk = "all";
+  if (state.lesson !== "all" && !filtered().length) state.lesson = "all";
+  save();
+
+  const t = new Date(), p = n => String(n).padStart(2, "0");
+  const info = "Đã tải " + WORDS.length + " từ từ Google Drive lúc " + p(t.getHours()) + ":" + p(t.getMinutes());
+  const notes = [...warnings];
+  if (CFG.skipped.length) notes.push("Bỏ qua file không phải Google Trang tính / Excel: " + CFG.skipped.join(", "));
+  $("subtitle").textContent = info + (notes.length ? " · " + notes.join(" · ") : "");
+  $("data-info").textContent = [info, ...notes].join(". ");
+  scr.classList.add("hidden");
+  show("v-pick");
+}
+
+renderNav();
+$("build-info").textContent = "Bản build " + new Date(CFG.builtAt).toLocaleString("vi-VN");
+$("load-retry").onclick = loadData;
+loadData();
+
+</script>
+</body>
+</html>
