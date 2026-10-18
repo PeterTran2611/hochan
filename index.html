@@ -293,6 +293,24 @@
   .wrong-list div { padding: 8px 0; border-bottom: 1px dashed var(--line); }
   .wrong-list .hz { font-family: var(--hanzi); font-size: 22px; margin-right: 8px; }
 
+  /* ===== 10 từ mới ngẫu nhiên ===== */
+  .nw-list { display: grid; gap: 12px; }
+  @media (min-width: 700px) { .nw-list { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .nw-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); overflow-wrap: anywhere; }
+  .nw-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .nw-hz { font-family: var(--hanzi); font-size: 40px; line-height: 1.35; }
+  .nw-card .tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 4px; }
+  .nw-form { margin-top: 8px; }
+  .nw-form .py { color: var(--accent); font-weight: 700; }
+  .nw-trad, .nw-cls { color: var(--muted); font-size: 13px; }
+  .nw-means { margin: 4px 0 0; padding-left: 18px; font-size: 14px; }
+  .nw-label { margin-top: 8px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .nw-en { font-size: 12.5px; color: var(--muted); }
+  .nw-missing { margin-top: 4px; font-size: 13px; color: var(--bad); }
+  .nw-strokes { justify-content: flex-start; margin-top: 12px; }
+  .nw-source { color: var(--muted); font-size: 12px; text-align: center; margin: 16px 0 0; }
+  .nw-loading { display: grid; place-items: center; padding: 32px; }
+
   /* ===== Cột tiến độ (máy tính rộng) ===== */
   .side-panel .card:first-child { margin-top: 0; }
   .ring-wrap { position: relative; width: 140px; height: 140px; margin: 4px auto 10px; }
@@ -427,6 +445,20 @@
         <div class="card chat" id="q-body"></div>
       </section>
 
+      <!-- 10 từ mới ngẫu nhiên -->
+      <section class="view" id="v-new">
+        <div class="page-head"><h2>10 từ mới</h2><p>10 từ ngẫu nhiên từ 2 chữ trở lên (danh từ, động từ, tính từ) theo cấp HSK bạn chọn</p></div>
+        <div class="card toolbar">
+          <div class="filter-bar">
+            <select id="nw-level" aria-label="Cấp HSK"></select>
+            <button class="btn-primary" id="nw-go">Lấy 10 từ khác</button>
+          </div>
+        </div>
+        <div class="result-count" id="nw-status"></div>
+        <div class="nw-list" id="nw-list"></div>
+        <p class="nw-source">Danh sách từ: complete-hsk-vocabulary 1.4 (HSK 3.0). Nghĩa tiếng Việt: CVDICT – Từ điển Hán Việt (Phong Phan, CC BY-SA 4.0), dịch từ CC-CEDICT bằng AI có rà soát, có thể còn lỗi. Hiển thị nguyên văn.</p>
+      </section>
+
       <div class="foot">Thứ tự nét: <a href="http://bishun.strokeorder.info/" target="_blank" rel="noopener">bishun.strokeorder.info</a> · <span id="build-info"></span></div>
     </main>
   </div>
@@ -477,7 +509,7 @@
 </div>
 
 <script>
-window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"optionalColumns":{"note":"Ghi chú"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","builtAt":"2026-10-18T16:33:50.230Z"};
+window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"optionalColumns":{"note":"Ghi chú"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","newWords":{"hskSource":"https://cdn.jsdelivr.net/gh/drkameleon/complete-hsk-vocabulary@1.4/wordlists/exclusive/new/","viDict":"https://cdn.jsdelivr.net/gh/ph0ngp/CVDICT@1.0.0/CVDICT.u8"},"builtAt":"2026-10-18T16:57:47.456Z"};
 // Parser CSV dùng chung cho trình duyệt (nhúng khi build) và script Node.
 // Giữ NGUYÊN VĂN nội dung từng ô: không cắt khoảng trắng, không đổi hoa/thường.
 function parseCSV(text) {
@@ -585,7 +617,8 @@ const ICONS = {
   speak: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
   send: '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>',
   bulb: '<path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
-  shuffle: '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>'
+  shuffle: '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>',
+  spark: '<path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/>'
 };
 const icon = name => {
   const s = el("span", "ico");
@@ -596,7 +629,8 @@ const NAV = [
   { view: "v-pick", label: "Trang chủ", icon: "home" },
   { view: "v-words", label: "Từ vựng", icon: "book" },
   { view: "v-flash", label: "Flashcard", icon: "cards" },
-  { view: "v-quiz", label: "Kiểm tra", icon: "quiz" }
+  { view: "v-quiz", label: "Kiểm tra", icon: "quiz" },
+  { view: "v-new", label: "Từ mới", icon: "spark" }
 ];
 function renderNav() {
   for (const box of [$("side-nav"), $("tabbar")]) {
@@ -1006,6 +1040,117 @@ function renderQuiz() {
   next.focus();
 }
 
+// ===== 10 từ mới ngẫu nhiên (nguồn ngoài: complete-hsk-vocabulary 1.4, HSK 3.0) =====
+// Tự tìm 10 từ ngẫu nhiên ≥ 2 chữ Hán, là danh từ / động từ / tính từ, theo cấp HSK chọn.
+// Hiển thị NGUYÊN VĂN dữ liệu nguồn (giản thể, phồn thể, pinyin, nghĩa tiếng Anh, lượng từ); không dịch, không sửa, không lưu.
+const HSK_SOURCE = CFG.newWords.hskSource;
+const NW_LEVELS = [["1", "HSK 1"], ["2", "HSK 2"], ["3", "HSK 3"], ["4", "HSK 4"], ["5", "HSK 5"], ["6", "HSK 6"], ["7", "HSK 7–9"]];
+const NW_MAIN = new Set(["n", "v", "a", "vn", "an"]);  // danh từ, động từ, tính từ (kể cả dạng danh hoá)
+// Tên tiếng Việt cho mã từ loại của nguồn (chỉ là nhãn hiển thị; mã lạ thì hiện nguyên mã)
+const POS_VI = { n: "Danh từ", v: "Động từ", a: "Tính từ", vn: "Động từ (danh hoá)", an: "Tính từ (danh hoá)", ad: "Tính từ (phó từ hoá)",
+  d: "Phó từ", m: "Số từ", q: "Lượng từ", r: "Đại từ", p: "Giới từ", c: "Liên từ", u: "Trợ từ", y: "Ngữ khí từ", e: "Thán từ",
+  o: "Tượng thanh", t: "Thời gian", f: "Phương vị", s: "Nơi chốn", b: "Khu biệt từ", z: "Trạng thái từ", l: "Cụm cố định",
+  nr: "Tên người", ns: "Địa danh", nt: "Tên tổ chức", nz: "Danh từ riêng" };
+const hanCount = t => [...String(t || "")].filter(ch => /\p{Script=Han}/u.test(ch)).length;
+let nwSeq = 0;
+
+// Nghĩa tiếng Việt: CVDICT (Phong Phan, CC BY-SA 4.0) — bản dịch tiếng Việt của CC-CEDICT, chính là nguồn nghĩa tiếng Anh ở trên.
+// Dòng CVDICT: "傳統 传统 [chuan2 tong3] /nghĩa 1/nghĩa 2/". Tải 1 lần mỗi phiên (~3,8 MB nén), chỉ giữ trong bộ nhớ.
+const CVDICT_URL = CFG.newWords.viDict;
+let viDictPromise = null;
+function loadViDict() {
+  if (!viDictPromise) viDictPromise = fetch(CVDICT_URL)
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+    .then(text => {
+      const dict = new Map();
+      for (const line of text.split("\n")) {
+        const m = line.match(/^(\S+) (\S+) \[([^\]]*)\] \/(.*)\/\s*$/);
+        if (!m) continue;
+        if (!dict.has(m[2])) dict.set(m[2], []);
+        dict.get(m[2]).push({ trad: m[1], py: m[3], vi: m[4].split("/") });
+      }
+      return dict;
+    })
+    .catch(e => { viDictPromise = null; throw e; });  // lỗi thì lần sau thử tải lại
+  return viDictPromise;
+}
+// Ghép bản dịch cho 1 cách đọc: khớp phồn thể + pinyin số → khớp phồn thể → mọi mục của chữ giản thể
+function viFor(dict, w, f) {
+  const all = (dict && dict.get(w.s)) || [];
+  const pyKey = t => String(t || "").toLowerCase().replace(/\s+/g, "");
+  const byBoth = all.filter(e => e.trad === f.t && pyKey(e.py) === pyKey(f.i && f.i.n));
+  if (byBoth.length) return byBoth;
+  const byTrad = all.filter(e => e.trad === f.t);
+  return byTrad.length ? byTrad : all;
+}
+
+function nwCard(w, dict) {
+  const card = el("div", "nw-card");
+  const head = el("div", "nw-head");
+  head.append(el("div", "nw-hz", w.s), speakBtn(w.s));
+  const tags = el("div", "tags");
+  (w.p || []).forEach(p => tags.append(el("span", NW_MAIN.has(p) ? "tag" : "tag gray", POS_VI[p] || p)));
+  card.append(head, tags);
+  (w.f || []).forEach(f => {  // một từ có thể có nhiều cách đọc → hiện đủ từng cách
+    const form = el("div", "nw-form");
+    form.append(el("div", "py", (f.i && f.i.y) || ""));
+    if (f.t && f.t !== w.s) form.append(el("div", "nw-trad", "Phồn thể: " + f.t));
+    const vi = viFor(dict, w, f);
+    if (vi.length) {
+      const ul = el("ul", "nw-means");
+      vi.forEach(e => e.vi.forEach(m => ul.append(el("li", null, m))));  // nguyên văn CVDICT
+      form.append(ul);
+    } else {
+      form.append(el("div", "nw-missing", dict ? "Chưa có nghĩa tiếng Việt" : "Chưa tải được từ điển tiếng Việt"));
+    }
+    form.append(el("div", "nw-label", "Tiếng Anh gốc"));
+    const en = el("ul", "nw-means nw-en");
+    (f.m || []).forEach(m => en.append(el("li", null, m)));  // nguyên văn complete-hsk-vocabulary
+    form.append(en);
+    if ((f.c || []).length) form.append(el("div", "nw-cls", "Lượng từ: " + f.c.join(", ")));
+    card.append(form);
+  });
+  const st = el("div", "strokes nw-strokes");
+  strokesInto(st, w.s);
+  card.append(st);
+  return card;
+}
+
+async function loadRandom() {
+  const lv = $("nw-level").value, label = (NW_LEVELS.find(x => x[0] === lv) || [lv, lv])[1];
+  try { localStorage.setItem("nwLevel", lv); } catch (e) {}
+  const seq = ++nwSeq, box = $("nw-list");
+  const wait = el("div", "nw-loading"); wait.append(el("div", "spinner"));
+  box.replaceChildren(wait);
+  $("nw-status").textContent = "Đang tìm 10 từ ngẫu nhiên " + label + (viDictPromise ? "…" : " và tải từ điển tiếng Việt (lần đầu khoảng 3,8 MB)…");
+  try {
+    const [data, dict] = await Promise.all([
+      fetch(HSK_SOURCE + lv + ".min.json").then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }),
+      loadViDict().catch(() => null)  // từ điển lỗi vẫn hiện được tiếng Anh
+    ]);
+    if (seq !== nwSeq) return;  // người dùng đã bấm lại → bỏ kết quả cũ
+    const pool = data.filter(w => hanCount(w.s) >= 2 && (w.p || []).some(p => NW_MAIN.has(p)));
+    const pick = shuffle(pool.slice()).slice(0, 10);
+    $("nw-status").textContent = pick.length + " từ ngẫu nhiên · " + label + " · chọn trong " + pool.length + " từ phù hợp" +
+      (dict ? "" : " · ⚠ chưa tải được từ điển tiếng Việt, đang hiện tiếng Anh");
+    box.replaceChildren(...pick.map(w => nwCard(w, dict)));
+  } catch (e) {
+    if (seq !== nwSeq) return;
+    box.replaceChildren();
+    $("nw-status").textContent = "Không tải được danh sách từ HSK. Kiểm tra mạng rồi bấm \"Lấy 10 từ khác\".";
+  }
+}
+
+function initNewWords() {
+  const sel = $("nw-level");
+  NW_LEVELS.forEach(([v, t]) => sel.append(new Option(t, v)));
+  let lv = null;
+  try { lv = localStorage.getItem("nwLevel"); } catch (e) {}
+  sel.value = lv && NW_LEVELS.some(x => x[0] === lv) ? lv : "1";
+  sel.onchange = loadRandom;
+  $("nw-go").onclick = loadRandom;
+}
+
 // ===== Cột tiến độ =====
 function renderSide() {
   const done = quiz ? quiz.done : 0, right = quiz ? quiz.right : 0;
@@ -1026,6 +1171,7 @@ function show(view) {
   if (view === "v-words") renderWords();
   if (view === "v-flash") { if (fcFilter !== state.hsk + "|" + state.lesson) newDeck(); renderFlash(); }
   if (view === "v-quiz") { if (!quiz || quiz.filter !== state.hsk + "|" + state.lesson) startQuiz(filtered()); else renderQuiz(); }
+  if (view === "v-new" && !$("nw-list").children.length) loadRandom();  // lần đầu mở mục thì tự lấy 10 từ
   window.scrollTo(0, 0);
 }
 
@@ -1129,6 +1275,7 @@ async function loadData() {
 }
 
 renderNav();
+initNewWords();
 $("build-info").textContent = "Bản build " + new Date(CFG.builtAt).toLocaleString("vi-VN");
 $("load-retry").onclick = loadData;
 loadData();
