@@ -244,6 +244,9 @@
   .face.back { transform: rotateY(180deg); background: linear-gradient(165deg, var(--surface), var(--accent-soft)); }
   .face .big { font-family: var(--hanzi); font-size: 116px; line-height: 1.35; }
   .face .hint { color: var(--muted); font-size: 13px; margin-top: 18px; }
+  .fc-speak { margin: 10px auto 0; }
+  .face.back .fc-speak { margin: 0 auto 14px; }
+  .q-speak { margin-top: 10px; }
   .fc-nav { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; max-width: 440px; margin: 0 auto; align-items: center; }
   .fc-nav .count { color: var(--muted); min-width: 64px; text-align: center; font-weight: 600; }
   .center { text-align: center; }
@@ -390,10 +393,11 @@
         </div>
         <div class="card3d" id="card">
           <div class="card3d-inner">
-            <div class="face front"><div class="big" id="fc-hz"></div><div class="hint">Chạm để lật thẻ</div></div>
+            <div class="face front"><div class="big" id="fc-hz"></div><span id="fc-speak-front"></span><div class="hint">Chạm để lật thẻ</div></div>
             <div class="face back">
               <div class="detail-py" id="fc-py"></div>
               <div class="detail-mn" id="fc-mn"></div>
+              <span id="fc-speak-back"></span>
               <div class="strokes" id="fc-strokes"></div>
             </div>
           </div>
@@ -473,7 +477,7 @@
 </div>
 
 <script>
-window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"optionalColumns":{"note":"Ghi chú"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","builtAt":"2026-10-18T16:28:48.486Z"};
+window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"optionalColumns":{"note":"Ghi chú"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","builtAt":"2026-10-18T16:33:50.230Z"};
 // Parser CSV dùng chung cho trình duyệt (nhúng khi build) và script Node.
 // Giữ NGUYÊN VĂN nội dung từng ô: không cắt khoảng trắng, không đổi hoa/thường.
 function parseCSV(text) {
@@ -819,6 +823,16 @@ function speak(text) {
   speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
 
+// Nút 🔊 dùng chung cho flashcard và kiểm tra; bấm không làm lật thẻ
+function speakBtn(getText, cls) {
+  const b = el("button", "btn-icon " + (cls || ""));
+  b.type = "button";
+  b.append(icon("speak"));
+  b.setAttribute("aria-label", "Phát âm");
+  b.onclick = e => { e.stopPropagation(); const t = typeof getText === "function" ? getText() : getText; if (t) speak(t); };
+  return b;
+}
+
 function openDetail(w) {
   $("d-tags").replaceChildren(el("span", "tag", hskLabel(w.hsk)), el("span", "tag gray", lessonLabel(w.lesson)));
   $("d-hz").textContent = w.hz; $("d-py").textContent = w.py; setMeaning($("d-mn"), w);
@@ -943,7 +957,8 @@ function renderQuiz() {
   const w = quiz.cur, m2h = quiz.type === "m2h";
   const prompt = m2h ? meaningEl("q-prompt", w) : el("div", "q-prompt hz", w.hz);
   if (!m2h) fitHz(prompt, w.hz, 64, 700, 150);
-  msgs.append(bubble("bot", el("div", "q-label", m2h ? "Viết chữ Hán có nghĩa:" : "Chữ Hán này nghĩa là gì?"), prompt));
+  // Nghĩa → Chữ Hán: không có nút đọc ở câu hỏi vì đọc lên là lộ đáp án
+  msgs.append(bubble("bot", el("div", "q-label", m2h ? "Viết chữ Hán có nghĩa:" : "Chữ Hán này nghĩa là gì?"), prompt, ...(m2h ? [] : [speakBtn(w.hz, "q-speak")])));
   if (quiz.hint) { const h = el("div", null, "💡 Gợi ý pinyin: "); h.append(el("b", null, w.py)); msgs.append(bubble("bot", h)); }
 
   if (!quiz.answered) {
@@ -973,7 +988,7 @@ function renderQuiz() {
   msgs.append(bubble("me", quiz.yours ? el("div", m2h ? "hz-ans" : null, quiz.yours) : el("div", null, "Không biết, cho mình xem đáp án")));
   const verdict = el("div", "verdict " + (quiz.result ? "ok" : "bad"), quiz.result ? "✓ Chính xác!" : "✗ Chưa đúng, đáp án là:");
   const ans = el("div", "answer");
-  ans.append(el("div", "a-hz", w.hz), el("div", "a-py", w.py), meaningEl("", w));
+  ans.append(el("div", "a-hz", w.hz), el("div", "a-py", w.py), meaningEl("", w), speakBtn(w.hz, "q-speak"));
   const fb = [verdict, ans];
   if (m2h) { const s = el("div", "strokes"); strokesInto(s, w.hz); fb.push(s); }
   msgs.append(bubble("bot", ...fb));
@@ -1031,6 +1046,8 @@ document.querySelectorAll("#q-mode button").forEach(b => b.onclick = () => {
 $("cta").onclick = () => show("v-words");
 $("search").oninput = renderWords;
 $("d-speak").append(icon("speak"));
+// Nút phát âm trên 2 mặt flashcard, đọc từ đang hiện
+["fc-speak-front", "fc-speak-back"].forEach(id => $(id).replaceWith(speakBtn(() => fcDeck[fcIndex] && fcDeck[fcIndex].hz, "fc-speak")));
 $("d-close").onclick = () => $("sheet-bg").classList.remove("open");
 $("sheet-bg").onclick = e => { if (e.target.id === "sheet-bg") $("sheet-bg").classList.remove("open"); };
 document.addEventListener("keydown", e => { if (e.key === "Escape") $("sheet-bg").classList.remove("open"); });
