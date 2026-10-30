@@ -509,7 +509,7 @@
 </div>
 
 <script>
-window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"optionalColumns":{"note":"Ghi chú"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","newWords":{"hskSource":"https://cdn.jsdelivr.net/gh/drkameleon/complete-hsk-vocabulary@1.4/wordlists/exclusive/new/","viDict":"https://cdn.jsdelivr.net/gh/ph0ngp/CVDICT@1.0.0/CVDICT.u8"},"builtAt":"2026-10-18T16:57:47.456Z"};
+window.APP_CONFIG = {"files":[{"name":"mau-nhap-tu-vung.xlsx","gviz":"https://docs.google.com/spreadsheets/d/1cAqTYJXqki7d4zDNmMbXhYLcL_j_qudA/gviz/tq?headers=1&tqx=out:json;responseHandler:"}],"skipped":[],"columns":{"hanzi":"Chữ Hán","pinyin":"Pinyin","meaning":"Nghĩa","hsk":"HSK","lesson":"Bài"},"optionalColumns":{"note":"Ghi chú"},"hskLevels":["1","2","3","4","5","6","7","8","9"],"bishun":"http://bishun.strokeorder.info","strokeData":"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/","newWords":{"hskSource":"https://cdn.jsdelivr.net/gh/drkameleon/complete-hsk-vocabulary@1.4/wordlists/exclusive/new/","viDict":"https://cdn.jsdelivr.net/gh/ph0ngp/CVDICT@1.0.0/CVDICT.u8"},"builtAt":"2026-10-30T16:32:39.253Z"};
 // Parser CSV dùng chung cho trình duyệt (nhúng khi build) và script Node.
 // Giữ NGUYÊN VĂN nội dung từng ô: không cắt khoảng trắng, không đổi hoa/thường.
 function parseCSV(text) {
@@ -826,25 +826,23 @@ function strokesInto(box, hz) {
   }
 }
 
-// ===== Phát âm =====
-// Đọc chậm (0,75) và chọn giọng tiếng Trung phổ thông rõ nhất có trên máy:
-// giọng AI "Natural/Online" của Edge-Windows > giọng chất lượng cao iPhone/Mac > Google > giọng zh-CN khác. Tránh giọng Quảng Đông.
+// ===== Phát âm: CỐ ĐỊNH tiếng phổ thông (Putonghua, zh-CN) =====
+// Chỉ dùng giọng phổ thông chuẩn zh-CN; loại giọng Đài Loan (zh-TW), Hồng Kông/Quảng Đông (zh-HK, yue) và phương ngữ (zh-CN-<vùng>).
+// Thứ tự ưu tiên cố định → máy nào cũng chọn cùng một giọng tốt nhất có sẵn. Không có giọng zh-CN thì vẫn đọc với lang zh-CN.
 const SPEECH_RATE = 0.75;
+const ZH_PREFERRED = [/xiaoxiao|晓晓/i, /yunxi|云希/i, /xiaoyi|晓伊/i, /google.*(普通话|mandarin)/i, /tingting|婷婷/i, /huihui|慧慧/i, /yaoyao|瑶瑶/i, /kangkang|康康/i];
 let zhVoice = null;
-function voiceScore(v) {
-  const lang = (v.lang || "").replace("_", "-").toLowerCase(), name = v.name || "";
-  if (!/^(zh|cmn)/.test(lang)) return -1;
-  let s = /zh-cn|cmn|hans/.test(lang) ? 50 : /hk|yue/.test(lang) ? -40 : 10;
-  if (/natural|neural|online/i.test(name)) s += 30;
-  if (/premium|enhanced|增强|高品质/i.test(name)) s += 25;
-  if (/google/i.test(name)) s += 20;
-  if (/xiaoxiao|xiaoyi|yunxi|tingting|晓晓|晓伊|云希|婷婷|lili/i.test(name)) s += 10;
-  if (/^zh-cn-./.test(lang)) s -= 30;  // giọng phương ngữ (zh-CN-liaoning, zh-CN-shaanxi…) xếp sau giọng chuẩn
-  return s;
+const isPutonghua = v => ["zh-cn", "cmn-cn", "zh-hans-cn", "cmn-hans-cn"].includes(String(v.lang || "").replace(/_/g, "-").toLowerCase());
+function voiceRank(v) {
+  const name = v.name || "", i = ZH_PREFERRED.findIndex(re => re.test(name));
+  const quality = /natural|neural|online|premium|enhanced|增强|高品质/i.test(name) ? 0 : 1;  // cùng tên thì ưu tiên bản chất lượng cao
+  return [i < 0 ? 99 : i, quality, name];
 }
 function pickVoice() {
   if (!("speechSynthesis" in window)) return;
-  zhVoice = speechSynthesis.getVoices().filter(v => voiceScore(v) >= 0).sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null;
+  const list = speechSynthesis.getVoices().filter(isPutonghua);
+  list.sort((a, b) => { const x = voiceRank(a), y = voiceRank(b); return x[0] - y[0] || x[1] - y[1] || x[2].localeCompare(y[2]); });
+  zhVoice = list[0] || null;
 }
 if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }  // danh sách giọng có thể tải muộn
 
@@ -852,8 +850,8 @@ function speak(text) {
   if (!("speechSynthesis" in window)) return;
   if (!zhVoice) pickVoice();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = "zh-CN"; u.rate = SPEECH_RATE; u.pitch = 1;
-  if (zhVoice) { u.voice = zhVoice; u.lang = zhVoice.lang; }
+  u.lang = "zh-CN"; u.rate = SPEECH_RATE; u.pitch = 1;  // luôn zh-CN, không lấy theo giọng
+  if (zhVoice) u.voice = zhVoice;
   speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
 
